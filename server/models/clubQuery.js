@@ -14,10 +14,10 @@ const checkUserInClub = 'SELECT * FROM user_club WHERE user_id = $1 AND club_id 
 const fetchUserClubsQuery = `SELECT B.name, B.id FROM user_club AS A   INNER
                             JOIN clubs as B   ON A.club_id=B.id where user_id = $1`
 
-const fetchAllClubMembersQuery = `SELECT B.name, B.id FROM user_club AS A   INNER
+const fetchAllClubMembersQuery = `SELECT A.id AS user_club_id, B.name, B.id FROM user_club AS A   INNER
                                   JOIN users as B   ON A.user_id=B.id where club_id = $1` 
                                   
-const deleteMember = `DELETE FROM user_club WHERE user_id = $1 AND club_id = $2`
+const deleteMember = `DELETE FROM user_club WHERE id = $1`
 
 
 export { 

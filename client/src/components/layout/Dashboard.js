@@ -14,7 +14,6 @@ import InviteForm from "../InviteForm";
 
 const Dashboard = () => {
   const [club_id, setClub_id]= useState(0);
-  // const [isAdmin, setIsAdmin]= useState(false);
 
   const history = useHistory()
 
@@ -24,10 +23,6 @@ const Dashboard = () => {
   const {data} = useQuery("clubs", fetchUserClubs)
 
   const {data: singleClub} =  useQuery(["club", {club_id}], getSingleClubById)
-
-  // if (singleClub?.data.admin_id === checker?.id) {
-  //   setIsAdmin(true)
-  // }
 
   const handleFetchClub = async(id)=>{
     setClub_id(id)
@@ -68,7 +63,7 @@ const Dashboard = () => {
             <h5>Members of {singleClub?.data.name}</h5>
             <div className="">
             <ul className="list-group">
-              <MemberList id={club_id} />
+              <MemberList id={club_id} user_id={checker?.id} club_admin_id={singleClub?.data.admin_id}/>
             </ul>
 
             </div>

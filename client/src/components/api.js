@@ -138,3 +138,19 @@ export const getSingleClubById = async({queryKey})=>{
 
   return response.json()
 }
+
+export const deleteMemberById = async({ user_club_id,club_id })=>{
+  const response = await fetch(`${process.env.REACT_APP_BASE_URL}/remove/${user_club_id}/${club_id}`,{
+    method: "DELETE",
+    headers: {
+      'Authorization': token,
+      "content-Type": "application/json"
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error("Something went wrong.")
+  }
+
+  return response.json()
+}

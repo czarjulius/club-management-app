@@ -143,12 +143,14 @@ class Club{
       const { id } = req.authUser;
 
       const isCreator_id = id;
-      const {user_id, club_id} = req.params;
+      const { user_club_id, club_id} = req.params;
   
       const club = await db.query(getSingleClubById, [club_id]);
+
+      console.log(user_club_id, 'user_club_id');
   
       if (club.rows[0].admin_id === isCreator_id) {
-        await db.query(deleteMember, [user_id, club_id]);
+        await db.query(deleteMember, [user_club_id]);
 
         return res.status(200).json({
           status: 200,
