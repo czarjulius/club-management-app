@@ -1,0 +1,11 @@
+.user-form-wrapper {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.user-form-wrapper form {
+  border: 2px solid grey;
+  padding: 4%;
+  border-radius: 10px;
+}
