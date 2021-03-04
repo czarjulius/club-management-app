@@ -40,10 +40,12 @@ export const createInvite = async({club_id, email})=>{
     body: JSON.stringify({invitee_email: email})
   })
 
+  const result = await response.json()
   if (!response.ok) {
-    throw new Error(response.json().message)
+    return Promise.reject(result.error)
   }
-  return response.json()
+
+  return result
 }
 
 export const fetchClubMembers = async({queryKey})=>{

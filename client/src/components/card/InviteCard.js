@@ -22,8 +22,8 @@ const InviteCard = ({email}) => {
   }
 
   return(
-    <>
-    {data?.data.map(({id, sender, club, club_id})=>(
+    <>{data?.data.length ? 
+    data?.data.map(({id, sender, club, club_id})=>(
         <div className="card-wrapper" key={id}>
           <div className="card text-center">
           <div className="card-body">
@@ -35,7 +35,7 @@ const InviteCard = ({email}) => {
           </div>
         </div>
       </div>
-    ))}
+    )) : <div><h5>No pending invitation</h5></div>}
     </>
 
   )

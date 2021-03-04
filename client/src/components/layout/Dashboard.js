@@ -19,9 +19,9 @@ const Dashboard = () => {
   const history = useHistory()
 
   const token = localStorage.getItem("token");
-  // if (!token) {
-  //   history.push("/")
-  // }
+  if (!token) {
+    history.push("/")
+  }
 
   
   const checker = authHelper.validateToken(token);
