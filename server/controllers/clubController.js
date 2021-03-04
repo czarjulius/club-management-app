@@ -1,3 +1,4 @@
+import dateFormat from 'dateformat';
 import db from "../models/db";
 import { 
   createClub, 
@@ -8,6 +9,7 @@ import {
   fetchAllClubMembersQuery,
   getSingleClubById,
   deleteMember,
+  dailyJoinCount
 } from "../models/clubQuery";
 
 import { updateInvite } from '../models/inviteQuery'
@@ -146,8 +148,6 @@ class Club{
       const { user_club_id, club_id} = req.params;
   
       const club = await db.query(getSingleClubById, [club_id]);
-
-      console.log(user_club_id, 'user_club_id');
   
       if (club.rows[0].admin_id === isCreator_id) {
         await db.query(deleteMember, [user_club_id]);
@@ -180,6 +180,37 @@ class Club{
           data:{...club.rows[0]}
         });
       }
+
+    }catch (err) {
+    return res.status(500).json({
+      status: 500,
+      error: err.message
+    });
+  }
+
+  }
+
+  static async dailyReport(req, res){
+    try {
+      const { club_id} = req.params;
+  
+      let repot_label = []
+      let repot_value = []
+      const report = await db.query(dailyJoinCount, [club_id]);
+      report.rows.map((value)=>{
+        const now = dateFormat(new Date(value.days), "dd:mmmm");
+        repot_label.push(now)
+        repot_value.push(parseInt(value.total))
+      })
+  
+      return res.status(200).json({
+        status: 200,
+        message: "Counted successfully",
+        data:{
+          repot_label,
+          repot_value
+        }
+      });
 
     }catch (err) {
     return res.status(500).json({

@@ -154,3 +154,18 @@ export const deleteMemberById = async({ user_club_id,club_id })=>{
 
   return response.json()
 }
+
+export const getReport = async({queryKey})=>{
+  const [_key, { club_id }] = queryKey;
+  const response = await fetch(`${process.env.REACT_APP_BASE_URL}/report/${club_id}`,{
+    headers: {
+      'Authorization': token,
+    }
+  })
+
+  if (!response.ok) {
+    throw new Error("Something went wrong.")
+  }
+
+  return response.json()
+}

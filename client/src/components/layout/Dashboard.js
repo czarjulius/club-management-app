@@ -10,7 +10,7 @@ import Modal from '../modal/modal'
 import MemberList from '../members/MemberList'
 import authHelper from "../../utils/authToken";
 import InviteForm from "../InviteForm";
-
+import Chart from '../Chart'
 
 const Dashboard = () => {
   const [club_id, setClub_id]= useState(0);
@@ -61,14 +61,13 @@ const Dashboard = () => {
             <InviteForm club_id={club_id}/>
             <hr/>
             <h5>Members of {singleClub?.data.name}</h5>
-            <div className="">
             <ul className="list-group">
               <MemberList id={club_id} user_id={checker?.id} club_admin_id={singleClub?.data.admin_id}/>
             </ul>
 
-            </div>
             <hr/>
             <h2>Daily Report Chart</h2>
+            <Chart club_id={club_id}/>
           </div>
         </div>
 

@@ -19,6 +19,9 @@ const fetchAllClubMembersQuery = `SELECT A.id AS user_club_id, B.name, B.id FROM
                                   
 const deleteMember = `DELETE FROM user_club WHERE id = $1`
 
+const dailyJoinCount = `Select count(user_id) total, registeredon AS days from user_club where club_id = $1
+                          group by registeredon`
+
 
 export { 
   createClub, 
@@ -28,5 +31,6 @@ export {
   fetchUserClubsQuery, 
   fetchAllClubMembersQuery, 
   getSingleClubById,
-  deleteMember 
+  deleteMember,
+  dailyJoinCount
 };
