@@ -11,7 +11,8 @@ const InviteForm = ({club_id}) => {
 
   const {mutateAsync, data, error} = useMutation(createInvite);
 
-  const handleInvitation = async()=>{
+  const handleInvitation = async(e)=>{
+    e.preventDefault()
     await mutateAsync({club_id, email}, {
       onSuccess: (data)=>{
         console.log('success');
@@ -45,7 +46,7 @@ const InviteForm = ({club_id}) => {
         placeholder="Friend's Email"
         onChange={({ target: { value } }) => setEmail(value)}
         />
-      <button className="btn btn-success" type="submit" onClick={handleInvitation}>Invite</button>
+      <button className="btn btn-success" onClick={handleInvitation}>Invite</button>
 
     </form>
     </>
