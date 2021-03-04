@@ -75,8 +75,11 @@ const Dashboard = () => {
         <div className="col-6">
           <div className="middle-frame">
             <h2> { singleClub?.data.name.toUpperCase()}</h2>
+            {club_id > 0 && (
 
-            <InviteForm club_id={club_id}/>
+              <InviteForm club_id={club_id}/>
+            )
+             }
             <hr/>
             <h5>Members of {singleClub?.data.name} club</h5>
             <ul className="list-group">

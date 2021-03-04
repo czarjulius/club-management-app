@@ -22,6 +22,7 @@ const tableQuery = async () => {
       admin_id INTEGER,
       FOREIGN KEY (admin_id) REFERENCES users(id),
       registeredOn DATE DEFAULT CURRENT_TIMESTAMP )`);
+      
     const userClubTable = await pool.query(`CREATE TABLE IF NOT EXISTS user_club(
       id SERIAL PRIMARY KEY,
       user_id INTEGER,
