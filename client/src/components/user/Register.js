@@ -10,9 +10,7 @@ const Register = () => {
   const [user, setUser] = useState({email:'', password:'', name:''});
   const history = useHistory()
 
-  const {mutateAsync} = useMutation(register, {
-    onSuccess: () => history.push("/")
-  });
+  const {mutateAsync, error} = useMutation(register);
 
   const handleOnChange = async({ target: { name, value } })=>{
     setUser({...user, [name]: value})
@@ -21,14 +19,20 @@ const Register = () => {
   const handleLogin = async(e)=>{
     e.preventDefault()
 
-    mutateAsync(user)
-    setUser({email:'', password:'', name:''})
-
+    mutateAsync(user, {
+      onSuccess: () => history.push("/")
+    })
   }
 
   return(
     <div className="user-form-wrapper">
       <form>
+      {error && (
+          <div className="alert alert-danger" role="alert">
+            {error}
+          </div>
+
+        )}
       <h3>Register</h3>
         <hr/>
           <div className="row mb-3">

@@ -86,11 +86,12 @@ export const login = async({email, password})=>{
     body: JSON.stringify({email, password})
   })
 
+  const result = await response.json()
   if (!response.ok) {
-    throw new Error(response.json().message)
+    return Promise.reject(result.error)
   }
 
-  return response.json()
+  return result
 }
 export const register = async({email, password, name})=>{
   const response = await fetch(`${process.env.REACT_APP_BASE_URL}/signup`, {
@@ -102,10 +103,12 @@ export const register = async({email, password, name})=>{
     body: JSON.stringify({email, password, name})
   })
 
+  const result = await response.json()
   if (!response.ok) {
-    throw new Error(response.json().message)
+    return Promise.reject(result.error)
   }
-  return response.json()
+
+  return result
 }
 
 export const acceptRejectClub = async({decission, id, club_id})=>{

@@ -4,16 +4,7 @@ import clsx from "clsx";
 
 import { fetchClubMembers, deleteMemberById } from '../api'
 
-const MemberList = ({id, user_id, club_admin_id}) => {
-  const [isAdmin, setIsAdmin] = useState(false)
-
-  useEffect(()=>{
-    if (user_id === club_admin_id ) {
-      setIsAdmin(true)
-    }else{
-      setIsAdmin(false)
-    }
-  },[club_admin_id])
+const MemberList = ({id, isAdmin}) => {
   
   const {data } = useQuery(["members", {id}], fetchClubMembers)
 

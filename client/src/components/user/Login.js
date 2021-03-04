@@ -11,12 +11,7 @@ const Login = () => {
 
   const history = useHistory()
 
-  const {mutateAsync} = useMutation(login, {
-    onSuccess: () => {
-      history.push("/dashboard")
-    }
-
-  });
+  const {mutateAsync, error} = useMutation(login);
 
   const handleOnChange = async({ target: { name, value } })=>{
     setUser({...user, [name]: value})
@@ -24,18 +19,23 @@ const Login = () => {
 
   const handleLogin = async(e)=>{
     e.preventDefault()
-
-    const result = await mutateAsync(user)
-
-    localStorage.setItem('token', result?.data.token)
-
-    setUser({email:'', password:''})
-
+    mutateAsync(user, {
+      onSuccess: (data) => {
+        localStorage.setItem('token', data?.data.token)
+        history.push("/dashboard")
+      },
+    })
   }
 
   return(
     <div className="user-form-wrapper">
       <form>
+        {error && (
+          <div className="alert alert-danger" role="alert">
+            {error}
+          </div>
+
+        )}
         <h3>Login</h3>
         <hr/>
           <div className="row mb-3">

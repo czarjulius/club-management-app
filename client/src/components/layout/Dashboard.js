@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {useQuery } from 'react-query'
 import { useHistory } from 'react-router-dom';
 
@@ -14,10 +14,16 @@ import Chart from '../Chart'
 
 const Dashboard = () => {
   const [club_id, setClub_id]= useState(0);
+  const [isAdmin, setIsAdmin] = useState(false)
 
   const history = useHistory()
 
   const token = localStorage.getItem("token");
+  // if (!token) {
+  //   history.push("/")
+  // }
+
+  
   const checker = authHelper.validateToken(token);
 
   const {data} = useQuery("clubs", fetchUserClubs)
@@ -33,6 +39,17 @@ const Dashboard = () => {
     history.push("/")
 
   };
+
+  const user_id = checker?.id
+  const club_admin_id = singleClub?.data.admin_id
+
+  useEffect(()=>{
+    if (user_id === club_admin_id) {
+      setIsAdmin(true)
+    }else{
+      setIsAdmin(false)
+    }
+  },[club_admin_id])
 
   return(
       <div className="container">
@@ -60,14 +77,15 @@ const Dashboard = () => {
 
             <InviteForm club_id={club_id}/>
             <hr/>
-            <h5>Members of {singleClub?.data.name}</h5>
+            <h5>Members of {singleClub?.data.name} club</h5>
             <ul className="list-group">
-              <MemberList id={club_id} user_id={checker?.id} club_admin_id={singleClub?.data.admin_id}/>
+              <MemberList id={club_id} isAdmin={isAdmin} />
             </ul>
 
             <hr/>
             <h2>Daily Report Chart</h2>
-            <Chart club_id={club_id}/>
+            {isAdmin ?  <Chart club_id={club_id}/> : "You are not the admin of this group"}
+           
           </div>
         </div>
 
