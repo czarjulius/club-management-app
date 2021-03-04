@@ -14,6 +14,13 @@ class User {
 
       const userEmail = await db.query(userDetails, [email]);
 
+      if (!email || !name || !password ) {
+        return res.status(400).json({
+          status: 400,
+          error: "Kindly fill out all inputs fields"
+        });
+      }
+
       if (userEmail.rows.length) {
         return res.status(409).json({
           status: 409,

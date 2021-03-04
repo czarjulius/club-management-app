@@ -24,7 +24,14 @@ class Club{
 
       let { name } = req.body;
 
-      name = name.toLowerCase();
+      name = name.toLowerCase().trim();
+
+      if (!name) {
+        return res.status(400).json({
+          status: 400,
+          error: "Club must have a name"
+        });
+      }
 
       const checkName = await db.query(getSingleClub, [name]);
       if (checkName.rows.length) {

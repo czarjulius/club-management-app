@@ -24,10 +24,12 @@ export const createClub = async(name)=>{
     body: JSON.stringify({name})
   })
 
+  const result = await response.json()
   if (!response.ok) {
-    throw new Error("Something went wrong.")
+    return Promise.reject(result.error)
   }
-  return response.json()
+
+  return result
 }
 
 export const createInvite = async({club_id, email})=>{

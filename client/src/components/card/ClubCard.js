@@ -6,7 +6,8 @@ const ClubCard = ({data, handleFetchClub}) => {
 
   return(
     <>
-      { data?.data.map(({name, id}) =>(
+      { data?.data.length 
+      ? data?.data.map(({name, id}) =>(
       <div className="card-wrapper" key={id}>
         <div className="card text-center">
         <div className="card-body">
@@ -15,7 +16,8 @@ const ClubCard = ({data, handleFetchClub}) => {
         </div>
       </div>
     </div>
-    ))
+    )) 
+    : <div><h6>You are yet to join any club</h6></div>
     }
   </>
 

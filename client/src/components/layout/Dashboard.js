@@ -65,6 +65,7 @@ const Dashboard = () => {
           <hr/>
           <div className="card-wrapper">
             <h5>My Clubs</h5>
+            <hr/>
             <ClubCard data={data} handleFetchClub={handleFetchClub}/>
           </div>
           </div>
@@ -84,7 +85,7 @@ const Dashboard = () => {
 
             <hr/>
             <h2>Daily Report Chart</h2>
-            {isAdmin ?  <Chart club_id={club_id}/> : "You are not the admin of this group"}
+            {isAdmin ?  <Chart club_id={club_id}/> : "Report is for admin only."}
            
           </div>
         </div>

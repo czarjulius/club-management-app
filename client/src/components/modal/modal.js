@@ -11,14 +11,14 @@ const [name, setName] = useState('');
 const queryClient = useQueryClient()
 
 
-  const {mutateAsync} = useMutation(createClub, {
-    onSuccess: ()=>{
-      console.log('success');
-    }
-  });
+  const {mutateAsync, data, error} = useMutation(createClub);
 
   const handleCreateClub = async()=>{
-    mutateAsync(name)
+    mutateAsync(name, {
+      onSuccess: (data)=>{
+        console.log('success');
+      }
+    })
     queryClient.invalidateQueries('clubs')
     setName('')
 
@@ -33,13 +33,27 @@ const queryClient = useQueryClient()
         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
     <form className="form-wrapper">
+    {data && (
+          <div className="alert alert-success" role="alert">
+            {data.message}
+          </div>
+
+        )}
+    {error && (
+          <div className="alert alert-danger" role="alert">
+            {error}
+          </div>
+
+        )}
+
       <input 
+      required
       className="form-control me-2 mb-2"  
       value={name}
       placeholder="Club Name" 
       onChange={({ target: { value } }) => setName(value)}
       />
-      <button className="btn btn-primary" onClick={handleCreateClub}>Create</button>
+      <button className="btn btn-primary" onClick={handleCreateClub} type="submit">Create</button>
     </form>
     </div>
   </div>

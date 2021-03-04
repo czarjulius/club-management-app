@@ -11,11 +11,10 @@ const InviteForm = ({club_id}) => {
 
   const {mutateAsync, data, error} = useMutation(createInvite);
 
-  const handleInvitation = async(e)=>{
-    e.preventDefault()
+  const handleInvitation = async()=>{
     await mutateAsync({club_id, email}, {
       onSuccess: (data)=>{
-        console.log(data, 'datadatadata');
+        console.log('success');
       }
     })
     queryClient.invalidateQueries('clubs')
@@ -33,7 +32,7 @@ const InviteForm = ({club_id}) => {
         )}
     {error && (
           <div className="alert alert-danger" role="alert">
-            Cross check your input 
+            User doesn't exist. Please cross check your input.
           </div>
 
         )}
