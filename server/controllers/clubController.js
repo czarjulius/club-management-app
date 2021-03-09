@@ -1,6 +1,6 @@
+import sequelize from 'sequelize'
 import dateFormat from 'dateformat';
 import {Club, User_Club, User, Invitation} from "../db/models";
-import sequelize from 'sequelize'
 
 class ClubController{
 
