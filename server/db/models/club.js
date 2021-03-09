@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       })
 
       Club.belongsToMany(Club, {
-        as: 'clubs',
+        as: 'myClubs',
         through: models.User_Club,
         foreignKey: 'club_id',
       });
