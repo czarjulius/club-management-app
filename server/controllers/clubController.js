@@ -1,20 +1,8 @@
 import dateFormat from 'dateformat';
-import db from "../models/db";
-import { 
-  createClub, 
-  getSingleClub, 
-  joinClub , 
-  checkUserInClub, 
-  fetchUserClubsQuery,
-  fetchAllClubMembersQuery,
-  getSingleClubById,
-  deleteMember,
-  dailyJoinCount
-} from "../models/clubQuery";
+import {Club, User_Club, User, Invitation} from "../db/models";
+import sequelize from 'sequelize'
 
-import { updateInvite } from '../models/inviteQuery'
-
-class Club{
+class ClubController{
 
   static async profileClub(req, res) {
     try {
@@ -33,28 +21,30 @@ class Club{
         });
       }
 
-      const checkName = await db.query(getSingleClub, [name]);
-      if (checkName.rows.length) {
+      const [club, created] = await Club.findOrCreate({
+        where: { name },
+        defaults: {
+          name, admin_id
+        },
+      });
+
+
+      if (!created) {
         return res.status(409).json({
           status: 409,
           error: `${name.toUpperCase()} is already profiled`
         });
       }
 
-      const values = [name, admin_id];
-      const result = await db.query(createClub, values);  
-
-      await db.query(joinClub, [admin_id, result.rows[0].id]) 
-
+      await User_Club.create({user_id: admin_id, club_id: club.dataValues.id})
 
       return res.status(201).json({
         status: 201,
         message: "Profiling successful",
         data: {
-            id: result.rows[0].id,
-            name,
-            admin_id,
-          registeredOn: result.rows[0].registeredon
+          id: club.dataValues.id,
+          name: club.dataValues.name,
+          admin_id:club.dataValues.admin_id
         }
       });
     } catch (err) {
@@ -74,22 +64,27 @@ class Club{
 
     const user_id = id
 
-    const checkUser = await db.query(checkUserInClub, [user_id, club_id]);
-      if (checkUser.rows.length) {
-        decission = 'accepted'
-        await db.query(updateInvite,[decission, invite_id])
+    const user_club = await User_Club.findOne({ where: { user_id, club_id } });
 
-        return res.status(409).json({
-          status: 409,
-          error: "You are already a member"
-        });
-      }
+    if (user_club && user_club.dataValues) {
+      decission = 'accepted'
+      await Invitation.update({ status: decission }, {
+        where: {
+          user_id, club_id
+        }
+      });
+
+      return res.status(409).json({
+        status: 409,
+        error: "You are already a member"
+      });
+    }
 
       if (decission === 'accepted') {
-        await db.query(joinClub, [user_id, club_id]) 
+        await User_Club.create({user_id, club_id}) 
       }
 
-    await db.query(updateInvite,[decission, invite_id])
+    await Invitation.update({ status: decission }, {where :{id: invite_id}})
 
     return res.status(201).json({
       status: 201,
@@ -109,12 +104,27 @@ class Club{
       const { id } = req.authUser;
       const user_id = id
 
-      const fetchUserClubs = await db.query(fetchUserClubsQuery, [user_id]);
+      const fetchUserClubs = await User_Club.findAll({
+        include:{
+          model: Club,
+          attributes: [
+            'id',
+            'name'
+          ],
+        },
+        where:{
+          user_id
+        }
+      })
+
+      const clubs = await fetchUserClubs.map((club) =>{
+        return club.dataValues.Club.dataValues;
+      })
 
       return res.status(200).json({
         status: 200,
-        message: "Clubs successful",
-        data: [...fetchUserClubs.rows]
+        message: "Clubs retrieved successful",
+        data: [...clubs]
       });
 
   } catch (err) {
@@ -130,13 +140,27 @@ class Club{
 
       const {club_id} = req.params
 
-    const AllClubMembers = await db.query(fetchAllClubMembersQuery, [club_id]);
-      
-      
+      const AllClubMembers = await User_Club.findAll({
+        include:{
+          model: User,
+          attributes: [
+            'id',
+            'name'
+          ],
+        },
+        where:{
+          club_id
+        }
+      })
+
+      const members = await AllClubMembers.map((member) =>{
+        return member.dataValues.User.dataValues;
+      })
+
       return res.status(200).json({
       status: 200,
       message: "Fetched members successfully",
-      data: [...AllClubMembers.rows]
+      data: [...members]
     });
 
   } catch (err) {
@@ -154,14 +178,22 @@ class Club{
       const isCreator_id = id;
       const { user_club_id, club_id} = req.params;
   
-      const club = await db.query(getSingleClubById, [club_id]);
-  
-      if (club.rows[0].admin_id === isCreator_id) {
-        await db.query(deleteMember, [user_club_id]);
-
+      const club = await Club.findOne({id:club_id});
+      
+      if (club.dataValues.admin_id === isCreator_id) {
+        await User_Club.destroy({
+          where: {
+            id: user_club_id
+          }
+        });
         return res.status(200).json({
           status: 200,
           message: "Deleted successfully",
+        });
+      }else{
+        return res.status(403).json({
+          status: 403,
+          message: "You are not the admin of this club",
         });
       }
 
@@ -178,13 +210,13 @@ class Club{
     try {
       const { club_id} = req.params;
   
-      const club = await db.query(getSingleClubById, [club_id]);
+      const club = await Club.findOne({id:club_id});
   
-      if (club.rows[0]) {
+      if (club && club.dataValues) {
         return res.status(200).json({
           status: 200,
           message: "Fetched successfully",
-          data:{...club.rows[0]}
+          data:{...club.dataValues}
         });
       }
 
@@ -201,13 +233,24 @@ class Club{
     try {
       const { club_id} = req.params;
   
+      const report = await User_Club.findAll({
+        attributes: [
+          [ sequelize.fn('date_trunc', 'day', sequelize.col('createdAt')), 'day'],
+          [ sequelize.fn('count', 'user_id'), 'total']
+        ],
+        where: {
+          club_id,
+        },
+        group: 'day'
+      })
+
       let repot_label = []
       let repot_value = []
-      const report = await db.query(dailyJoinCount, [club_id]);
-      report.rows.map((value)=>{
-        const now = dateFormat(new Date(value.days), "dd:mmmm");
+
+      await report.map((value)=>{
+        const now = dateFormat(new Date(value.dataValues.day), "dd:mmmm");
         repot_label.push(now)
-        repot_value.push(parseInt(value.total))
+        repot_value.push(parseInt(value.dataValues.total))
       })
   
       return res.status(200).json({
@@ -229,4 +272,4 @@ class Club{
   }
 }
 
-export default Club
+export default ClubController

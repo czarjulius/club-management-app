@@ -6,15 +6,15 @@ module.exports = {
       await queryInterface.bulkInsert('Clubs', 
       [
         {
-        name: 'Barca',
+        name: 'Barca'.toLowerCase(),
         admin_id:  1,
       },
         {
-        name: 'Liverpool',
+        name: 'Liverpool'.toLowerCase(),
         admin_id:  1,
       },
         {
-        name: 'Chelsea',
+        name: 'Chelsea'.toLowerCase(),
         admin_id:  2,
       },
         

@@ -18,9 +18,8 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: 'CASCADE'
       })
 
-      Club.belongsToMany(Club, {
+      Club.hasMany(models.User_Club, {
         as: 'myClubs',
-        through: models.User_Club,
         foreignKey: 'club_id',
       });
 

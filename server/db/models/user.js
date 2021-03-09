@@ -11,9 +11,8 @@ module.exports = (sequelize, DataTypes) => {
         as: 'admins',
       });
 
-      User.belongsToMany(User, {
+      User.hasMany(models.User_Club, {
         as: 'users',
-        through: models.User_Club,
         foreignKey: 'user_id',
       });
 

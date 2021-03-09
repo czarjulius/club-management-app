@@ -75,8 +75,6 @@ class UserController {
         password,
         user.dataValues.password
       );
-      console.log(userPassword);
-
 
       if (!user.dataValues || userPassword === false) {
         return res.status(400).json({
