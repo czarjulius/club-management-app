@@ -16,13 +16,17 @@ module.exports = {
           key: 'email'
         }
       },
-      invitee_email: {
-        type: Sequelize.STRING,
+      sender_id: {
+        type: Sequelize.INTEGER,
         allowNull: false,
         references:{
           model: 'Users',
-          key: 'email'
+          key: 'id'
         }
+      },
+      invitee_email: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       club_id: {
         type: Sequelize.INTEGER,

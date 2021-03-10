@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Invitation.belongsTo(models.User, {
-        foreignKey: 'invitee_email',
+        foreignKey: 'sender_id',
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE'
       })

@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       User.hasMany(models.Invitation, {
-        foreignKey: 'invitee_email',
+        foreignKey: 'sender_id',
       });
     }
   };
