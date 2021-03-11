@@ -2,8 +2,6 @@ import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 import User from "../db/models/user";
 import generateToken from "../middlewares/generateToken";
-import { insertUser, userDetails } from "../models/userQuery";
-
 
 dotenv.config();
 

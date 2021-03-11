@@ -1,5 +1,6 @@
 import dateFormat from 'dateformat';
-import db from "../models/db";
+import Club from "../db/models/club";
+import User_Club from "../db/models/user_club";
 import { 
   createClub, 
   getSingleClub, 
@@ -14,16 +15,13 @@ import {
 
 import { updateInvite } from '../models/inviteQuery'
 
-class Club{
+class ClubController{
 
   static async profileClub(req, res) {
     try {
-      const { id } = req.authUser;
-
-      const admin_id = id;
+      const { id: admin_id } = req.authUser;
 
       let { name } = req.body;
-
       name = name.toLowerCase().trim();
 
       if (!name) {
@@ -33,29 +31,31 @@ class Club{
         });
       }
 
-      const checkName = await db.query(getSingleClub, [name]);
-      if (checkName.rows.length) {
-        return res.status(409).json({
-          status: 409,
-          error: `${name.toUpperCase()} is already profiled`
-        });
-      }
-
-      const values = [name, admin_id];
-      const result = await db.query(createClub, values);  
-
-      await db.query(joinClub, [admin_id, result.rows[0].id]) 
-
-
-      return res.status(201).json({
-        status: 201,
-        message: "Profiling successful",
-        data: {
-            id: result.rows[0].id,
-            name,
-            admin_id,
-          registeredOn: result.rows[0].registeredon
+      await Club.findOne({ name }, async(err, club) =>{
+        if (club){
+          return res.status(409).json({
+            status: 409,
+            error: `${name.toUpperCase()} is already profiled`
+          });
         }
+
+       await Club.create({ name, admin_id }, async (err, club)=> {
+          if (club) {
+            await User_Club.create({user_id: admin_id, club_id: club._doc._id}, async(err, user_club)=>{
+              if (user_club) {
+                return await res.status(201).json({
+                  status: 201,
+                  message: "Profiling successful",
+                  data: {
+                      id: club._doc._id,
+                      name: club._doc.name,
+                      admin_id,
+                  }
+                });
+              }
+            })
+          }
+        });
       });
     } catch (err) {
       return res.status(500).json({
@@ -229,4 +229,4 @@ class Club{
   }
 }
 
-export default Club
+export default ClubController
