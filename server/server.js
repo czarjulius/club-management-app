@@ -27,7 +27,8 @@ app.use("*", (req, res) =>
 mongoose.connect(MONGO_URI,{
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  useFindAndModify: false
+  useFindAndModify: false,
+  useCreateIndex: true
 })
 .then(()=>console.log('MongoDb connected!'))
 .catch(err => console.log(err))
