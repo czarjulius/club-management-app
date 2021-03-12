@@ -70,7 +70,7 @@ class ClubController{
       decission = 'accepted'
       await Invitation.update({ status: decission }, {
         where: {
-          user_id, club_id
+          id: invite_id
         }
       });
 
