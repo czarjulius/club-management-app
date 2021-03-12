@@ -109,17 +109,22 @@ class ClubController{
 
   static async fetchClubByUserId(req, res){
     try {
-      const { id } = req.authUser;
-      const user_id = id
+      const { id: user_id } = req.authUser;
 
-      const fetchUserClubs = await db.query(fetchUserClubsQuery, [user_id]);
+      await User_Club.find({ user_id}, async (err, user_club)=> {
+        if (user_club) {
+         const clubs =  await user_club.map((club)=>{
+           return {id: club.club_id._id, name: club.club_id.name}
+          })
 
-      return res.status(200).json({
-        status: 200,
-        message: "Clubs successful",
-        data: [...fetchUserClubs.rows]
-      });
+          return res.status(200).json({
+            status: 200,
+            message: "Clubs successful",
+            data: [...clubs]
+          });
 
+        }
+      }).populate('club_id');
   } catch (err) {
     return res.status(500).json({
       status: 500,
@@ -130,18 +135,20 @@ class ClubController{
 
   static async fetchAllClubMembers(req, res){
     try {    
-
       const {club_id} = req.params
 
-    const AllClubMembers = await db.query(fetchAllClubMembersQuery, [club_id]);
-      
-      
-      return res.status(200).json({
-      status: 200,
-      message: "Fetched members successfully",
-      data: [...AllClubMembers.rows]
-    });
-
+      await User_Club.find({ club_id}, async (err, user_club)=> {
+        if (user_club) {
+        const members =  await user_club.map((user)=>{
+          return {id: user.user_id._id, name: user.user_id.name}
+          })
+          return res.status(200).json({
+            status: 200,
+            message: "Fetched members successfully",
+            data: [...members]
+          });
+        }
+      }).populate('user_id');
   } catch (err) {
     return res.status(500).json({
       status: 500,
@@ -152,22 +159,19 @@ class ClubController{
 
   static async deleteClubMember(req, res){
     try {
-      const { id } = req.authUser;
-
-      const isCreator_id = id;
-      const { user_club_id, club_id} = req.params;
+      const { id: isCreator_id } = req.authUser;
+      const { user_club_id } = req.params;
   
-      const club = await db.query(getSingleClubById, [club_id]);
-  
-      if (club.rows[0].admin_id === isCreator_id) {
-        await db.query(deleteMember, [user_club_id]);
+      await User_Club.findOne({ _id:user_club_id}, async (err, user_club)=> {
+        if (user_club && (user_club.club_id.admin_id === isCreator_id)) {
+          await user_club.remove();
 
-        return res.status(200).json({
-          status: 200,
-          message: "Deleted successfully",
-        });
-      }
-
+          return res.status(200).json({
+            status: 200,
+            message: "Deleted successfully",
+          });
+        }
+      }).populate('club_id');
     }catch (err) {
     return res.status(500).json({
       status: 500,
@@ -181,46 +185,63 @@ class ClubController{
     try {
       const { club_id} = req.params;
   
-      const club = await db.query(getSingleClubById, [club_id]);
-  
-      if (club.rows[0]) {
-        return res.status(200).json({
-          status: 200,
-          message: "Fetched successfully",
-          data:{...club.rows[0]}
-        });
-      }
-
+      await Club.findOne({ _id: club_id}, async (err, club)=> {
+        if (club) {
+          return res.status(200).json({
+            status: 200,
+            message: "Fetched successfully",
+            data:{
+              id: club._id,
+              name: club.name
+            }
+          });
+        }
+      });
     }catch (err) {
     return res.status(500).json({
       status: 500,
       error: err.message
     });
   }
-
   }
 
   static async dailyReport(req, res){
     try {
       const { club_id} = req.params;
-  
-      let repot_label = []
-      let repot_value = []
-      const report = await db.query(dailyJoinCount, [club_id]);
-      report.rows.map((value)=>{
-        const now = dateFormat(new Date(value.days), "dd:mmmm");
-        repot_label.push(now)
-        repot_value.push(parseInt(value.total))
-      })
-  
-      return res.status(200).json({
-        status: 200,
-        message: "Counted successfully",
-        data:{
-          repot_label,
-          repot_value
+
+      const res = await User_Club.aggregate( [
+        {
+          $unwind: "$items"
+      },
+        
+        {
+          $group: {
+            created_at: "$items.created_at",
+             count: { $sum: "$items.user_id" }
+          }
         }
-      });
+      ] )
+
+      console.log(res, 'ooooooooooo');
+      
+  
+      // let repot_label = []
+      // let repot_value = []
+      // const report = await db.query(dailyJoinCount, [club_id]);
+      // report.rows.map((value)=>{
+      //   const now = dateFormat(new Date(value.days), "dd:mmmm");
+      //   repot_label.push(now)
+      //   repot_value.push(parseInt(value.total))
+      // })
+  
+      // return res.status(200).json({
+      //   status: 200,
+      //   message: "Counted successfully",
+      //   data:{
+      //     repot_label,
+      //     repot_value
+      //   }
+      // });
 
     }catch (err) {
     return res.status(500).json({
