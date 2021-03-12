@@ -2,9 +2,9 @@ import "@babel/polyfill";
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
-import mongoose from 'mongoose';
 import router from "./routes/index";
-import {MONGO_URI} from './db/config/config'
+import {db_connection} from './db/config/config'
+
 const app = express();
 
 app.use(cors());
@@ -24,14 +24,7 @@ app.use("*", (req, res) =>
   })
 );
 
-mongoose.connect(MONGO_URI,{
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
-  useCreateIndex: true
-})
-.then(()=>console.log('MongoDb connected!'))
-.catch(err => console.log(err))
+db_connection();
 
 const port = process.env.PORT || 8080;
 

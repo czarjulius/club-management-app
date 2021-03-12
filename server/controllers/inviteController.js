@@ -1,22 +1,24 @@
-import db from "../models/db";
-import { sendInvite, fetchUserPendingInvites} from "../models/inviteQuery";
+import Club from "../db/models/club";
+import User_Club from "../db/models/user_club";
 
-class Invite{
+import Invitation from "../db/models/invitation";import { sendInvite, fetchUserPendingInvites} from "../models/inviteQuery";
+
+class InviteController{
 
   static async invite(req, res){
     try {
-      const { email } = req.authUser;
-
-      const sender = email;
+      const { email: sender, id } = req.authUser;
       const {invitee_email} = req.body;
       const {club_id} = req.params
-
-      await db.query(sendInvite, [sender, invitee_email, club_id]);  
-
-      return res.status(201).json({
-        status: 201,
-        message: "Invitation sent successful",
-      });
+      
+      await Invitation.create({sender_email:sender, sender_id: id, invitee_email, club_id}, async(err, invite)=>{
+        if (invite) {
+          return res.status(201).json({
+            status: 201,
+            message: "Invitation sent successful",
+          });
+        }
+      })
     } catch (err) {
       return res.status(500).json({
         status: 500,
@@ -49,4 +51,4 @@ class Invite{
   }
 }
 
-export default Invite
+export default InviteController

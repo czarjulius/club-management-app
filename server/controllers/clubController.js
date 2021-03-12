@@ -1,6 +1,7 @@
 import dateFormat from 'dateformat';
 import Club from "../db/models/club";
 import User_Club from "../db/models/user_club";
+import Invitation from "../db/models/invitation";
 import { 
   createClub, 
   getSingleClub, 
@@ -12,8 +13,6 @@ import {
   deleteMember,
   dailyJoinCount
 } from "../models/clubQuery";
-
-import { updateInvite } from '../models/inviteQuery'
 
 class ClubController{
 
@@ -68,40 +67,44 @@ class ClubController{
   static async joinClub(req,res){
     try {
     const{club_id} = req.params
-    const { id } = req.authUser;
+    const { id: user_id } = req.authUser;
 
     let {decission, invite_id} = req.body;
 
-    const user_id = id
-
-    const checkUser = await db.query(checkUserInClub, [user_id, club_id]);
-      if (checkUser.rows.length) {
+    await User_Club.findOne({ user_id, club_id }, async (err, user_club)=> {
+      if(user_club){
         decission = 'accepted'
-        await db.query(updateInvite,[decission, invite_id])
+        await Invitation.updateOne({_id: invite_id}, {status:decission})
 
         return res.status(409).json({
           status: 409,
           error: "You are already a member"
         });
       }
+      })
+      await Invitation.updateOne({_id: invite_id}, {status:decission})
 
       if (decission === 'accepted') {
-        await db.query(joinClub, [user_id, club_id]) 
+        await User_Club.create({user_id, club_id}, async(err, user_club)=>{
+          if (user_club) {
+            return res.status(201).json({
+              status: 201,
+              message: "Joined successful"
+            });
+          }
+        })
+      }else{
+        return res.status(200).json({
+          status: 200,
+          message: "Invitation rejected"
+        });
       }
-
-    await db.query(updateInvite,[decission, invite_id])
-
-    return res.status(201).json({
-      status: 201,
-      message: "Joined successful"
-    });
   } catch (err) {
     return res.status(500).json({
       status: 500,
       error: err.message
     });
   }
-
   }
 
   static async fetchClubByUserId(req, res){

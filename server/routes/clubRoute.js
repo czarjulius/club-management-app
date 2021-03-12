@@ -5,7 +5,7 @@ import authenticate from '../middlewares/Authentication';
 const router = express.Router();
 
 router.post('/profileclub',  clubController.profileClub);
-router.post('/joinclub/:club_id',authenticate, clubController.joinClub);
+router.post('/joinclub/:club_id', clubController.joinClub);
 router.get('/clubs',authenticate, clubController.fetchClubByUserId);
 router.get('/clubs/:club_id',authenticate, clubController.getClubById);
 router.get('/members/:club_id',authenticate, clubController.fetchAllClubMembers);
