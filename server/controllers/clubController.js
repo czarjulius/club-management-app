@@ -2,6 +2,9 @@ import dateFormat from 'dateformat';
 import Club from "../db/models/club";
 import User_Club from "../db/models/user_club";
 import Invitation from "../db/models/invitation";
+import mongoose from 'mongoose'
+// var ObjectID = require('mongodb').ObjectID;
+
 import { 
   createClub, 
   getSingleClub, 
@@ -163,13 +166,13 @@ class ClubController{
       const { user_club_id } = req.params;
   
       await User_Club.findOne({ _id:user_club_id}, async (err, user_club)=> {
-        if (user_club && (user_club.club_id.admin_id === isCreator_id)) {
-          await user_club.remove();
+        if (user_club && (user_club.club_id.admin_id == isCreator_id)) {
+          await User_Club.deleteOne({ _id:  user_club_id});
 
           return res.status(200).json({
             status: 200,
             message: "Deleted successfully",
-          });
+          });   
         }
       }).populate('club_id');
     }catch (err) {
@@ -209,20 +212,21 @@ class ClubController{
     try {
       const { club_id} = req.params;
 
-      const res = await User_Club.aggregate( [
-        {
-          $unwind: "$items"
-      },
-        
-        {
-          $group: {
-            created_at: "$items.created_at",
-             count: { $sum: "$items.user_id" }
-          }
-        }
-      ] )
+      const res = await User_Club.aggregate([
+          { $match : { club_id } },
 
-      console.log(res, 'ooooooooooo');
+          // { $group: { _id: {day: "$created_at" }} }
+        ])
+              
+        console.log(res, 'ooooooooooo');
+
+
+      // const res = await User_Club.aggregate([
+      //   // { $match : { club_id } },
+      //   { $group: { _id: {day: "$created_at" }} }
+      // ])
+
+      // console.log(res, 'ooooooooooo');
       
   
       // let repot_label = []
