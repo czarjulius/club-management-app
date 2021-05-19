@@ -57,7 +57,7 @@ class ClubController{
 
   static async joinClub(req,res){
     try {
-    const{club_id} = req.params
+    const { club_id} = req.params
     const { id } = req.authUser;
 
     let {decission, invite_id} = req.body;

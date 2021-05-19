@@ -1,7 +1,8 @@
-/server/node_modules
-/server/.env
+server/node_modules
+server/.env
 
-/client/.env
-/client/build
-/client/.netlify
-/client/node_modules
+client/.env.production
+client/.env.development
+client/build
+client/.netlify
+client/node_modules

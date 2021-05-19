@@ -1,9 +1,7 @@
-const createClub = `INSERT INTO clubs(name, admin_id)
-VALUES($1, $2)
-RETURNING id, name, admin_id, registeredOn`;
+const createClub = `INSERT INTO clubs(name, admin_id)VALUES($1, $2)
+                    RETURNING id, name, admin_id, registeredOn`;
 
-const joinClub = `INSERT INTO user_club(user_id, club_id)
-VALUES($1, $2)`;
+const joinClub = `INSERT INTO user_club(user_id, club_id)VALUES($1, $2)`;
 
 const getSingleClub = 'SELECT * FROM clubs WHERE name = $1';
 
@@ -19,7 +17,7 @@ const fetchAllClubMembersQuery = `SELECT A.id AS user_club_id, B.name, B.id FROM
                                   
 const deleteMember = `DELETE FROM user_club WHERE id = $1`
 
-const dailyJoinCount = `Select count(user_id) total, registeredon AS days from user_club where club_id = $1
+const dailyJoinCount = `Select count(distinct user_id) total, registeredon AS days from user_club where club_id = $1
                           group by registeredon`
 
 
