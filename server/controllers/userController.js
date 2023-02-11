@@ -1,18 +1,15 @@
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
-import db from "../models/db";
 import generateToken from "../middlewares/generateToken";
-import { insertUser, userDetails } from "../models/userQuery";
+import {User} from "../db/models";
 
 
 dotenv.config();
 
-class User {
+class UserController {
   static async userSignup(req, res) {
     try {
       const { email, name, password } = req.body;
-
-      const userEmail = await db.query(userDetails, [email]);
 
       if (!email || !name || !password ) {
         return res.status(400).json({
@@ -21,25 +18,29 @@ class User {
         });
       }
 
-      if (userEmail.rows.length) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+      const [user, created] = await User.findOrCreate({
+        where: { email },
+        defaults: {
+          name, password:hashedPassword
+        }
+      });
+
+      if (!created) {
         return res.status(409).json({
           status: 409,
           error: "Email is already registered"
         });
       }
 
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-
-      const values = [email, name, hashedPassword];
-
-      const result = await db.query(insertUser, values);
-
       return res.status(201).json({
         status: 201,
         message: "Registration successful",
         data: {
-          ...result.rows[0]
+          name: user.dataValues.name,
+          email: user.dataValues.email
         }
       });
     } catch (err) {
@@ -54,9 +55,16 @@ class User {
     try {
       const { email, password } = req.body;
 
-      const userEmail = await db.query(userDetails, [email]);
+      if (!email || !password ) {
+        return res.status(400).json({
+          status: 400,
+          error: "Kindly fill out all inputs fields"
+        });
+      }
 
-      if (!userEmail.rows.length) {
+      const user = await User.findOne({ where: { email } });
+
+      if (!user) {
         return res.status(400).json({
           status: 400,
           error: "invalid email or password"
@@ -65,10 +73,10 @@ class User {
 
       const userPassword = await bcrypt.compare(
         password,
-        userEmail.rows[0].password
+        user.dataValues.password
       );
 
-      if (!userEmail.rows[0] || userPassword === false) {
+      if (!user.dataValues || userPassword === false) {
         return res.status(400).json({
           status: 400,
           error: "invalid email or password"
@@ -76,11 +84,10 @@ class User {
       }
 
 
-      const rows = userEmail;
-      const { id, name } = rows.rows[0];
+      const { id, name } = user.dataValues;
       const token = generateToken(
-        rows.rows[0].id,
-        rows.rows[0].email,
+        user.dataValues.id,
+        user.dataValues.email,
       );
       return res
         .header("token", token)
@@ -104,4 +111,4 @@ class User {
   }
 }
 
-export default User;
+export default UserController;

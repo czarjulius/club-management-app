@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "nodemon --require @babel/register server.js",
     "start": "node --require @babel/register server.js",
-    "mig": "babel-node ./models/migrate.js"
+    "mig": "sequelize db:migrate",
+    "undo-mig": "sequelize db:migrate:undo:all",
+    "seed": "sequelize db:seed:all",
+    "undo-seed": "sequelize db:seed:undo:all"
   },
   "dependencies": {
     "@babel/core": "^7.8.3",
@@ -21,7 +24,9 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "pg": "^8.5.1"
+    "pg": "^8.5.1",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^6.5.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.1"
